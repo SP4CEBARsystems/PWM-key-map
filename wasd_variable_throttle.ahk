@@ -12,36 +12,44 @@ SetBatchLines, -1  ; Ensure high performance execution
 showIndicator()
 
 WheelUp::
-throttle := Min(1, throttle + 0.05)  ; Increase throttle, max 1
-updateIndicator()
+	throttle := Min(1, throttle + 0.05)  ; Increase throttle, max 1
+	updateIndicator()
 return
 
 WheelDown::
-throttle := Max(0, throttle - 0.05)  ; Decrease throttle, min 0
-updateIndicator()
+	throttle := Max(0, throttle - 0.05)  ; Decrease throttle, min 0
+	updateIndicator()
 return
 
-XButton1::alternate("s", "XButton1", throttle)
-XButton2::alternate("w", "XButton2", throttle)
+XButton1::
+	while GetKeyState("XButton1", "P") {
+		alternate("s", throttle, 100)
+	}
+Return
+
+XButton2::
+	while GetKeyState("XButton2", "P") {
+		alternate("w", throttle, 100)
+	}
+Return
 
 MButton::steering("MButton")
 
-alternate(key, activationKey, dutyCycle) {
-	cycleDelay := 100
-    while GetKeyState(activationKey, "P") {
-        Send {%key% down}
-        Sleep, % (dutyCycle * cycleDelay)
-        Send {%key% up}
-        Sleep, % ((1 - dutyCycle) * cycleDelay)
-    }
+alternate(key, dutyCycle, cycleDelay) {
+	Send {%key% down}
+	Sleep, % (dutyCycle * cycleDelay)
+	Send {%key% up}
+	Sleep, % ((1 - dutyCycle) * cycleDelay)
 }
 
 steering(activationKey) {
-    steeringPower := getSteeringPower()
-    steeringMagnitude := Abs(steeringPower)
-    key := (steeringPower < 0) ? "a" : "d"
-    alternate(key, activationKey, steeringMagnitude)
-	updateIndicator()
+    while GetKeyState(activationKey, "P") {
+		steeringPower := getSteeringPower()
+		steeringMagnitude := Abs(steeringPower)
+		key := (steeringPower < 0) ? "a" : "d"
+    	alternate(key, steeringMagnitude, 100)
+		updateIndicator()
+	}
 }
 
 getSteeringPower() {
