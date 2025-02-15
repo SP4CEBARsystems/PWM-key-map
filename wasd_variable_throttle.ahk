@@ -23,15 +23,15 @@ return
 
 XButton1::
 	while GetKeyState("XButton1", "P") {
-		alternate("s", throttle, 100)
+		alternate("s", throttle, 20)
 	}
-Return
+return
 
 XButton2::
 	while GetKeyState("XButton2", "P") {
-		alternate("w", throttle, 100)
+		alternate("w", throttle, 20)
 	}
-Return
+return
 
 MButton::steering("MButton")
 
@@ -47,7 +47,7 @@ steering(activationKey) {
 		steeringPower := getSteeringPower()
 		steeringMagnitude := Abs(steeringPower)
 		key := (steeringPower < 0) ? "a" : "d"
-    	alternate(key, steeringMagnitude, 100)
+    	alternate(key, steeringMagnitude, 20)
 		updateIndicator()
 	}
 }
@@ -78,7 +78,7 @@ updateIndicator(){
 
 floorDecimal(num, digits) {
 	divideBy := 10 ** digits
-	num:=Floor(num*divideBy)
+	num := Floor(num * divideBy)
 	SetFormat Float, 0.2
-	return num/divideBy
+	return num / divideBy
 }
