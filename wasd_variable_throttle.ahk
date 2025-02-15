@@ -65,15 +65,12 @@ showIndicator(){
 updateIndicator(){
     global throttle
 	global MyEdit
-	GuiControl,, MyEdit, % "Throttle: " . FloorDecimal(throttle) . "`nSteering: " . FloorDecimal(getSteeringPower())
+	GuiControl,, MyEdit, % "Throttle: " . FloorDecimal(throttle, 2) . "`nSteering: " . FloorDecimal(getSteeringPower(), 2)
 }
 
-MsgBox % FloorDecimal(1.7886)
-
-FloorDecimal(num) {
-
-  num:=Floor(num*100)
-  SetFormat Float, 0.2
-  return num/100
-
+floorDecimal(num, digits) {
+	divideBy = 10 ** digits
+	num:=Floor(num*divideBy)
+	SetFormat Float, 0.2
+	return num/divideBy
 }
