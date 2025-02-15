@@ -69,7 +69,7 @@ updateIndicator(){
 }
 
 floorDecimal(num, digits) {
-	divideBy = 10 ** digits
+	divideBy := 10 ** digits
 	num:=Floor(num*divideBy)
 	SetFormat Float, 0.2
 	return num/divideBy
