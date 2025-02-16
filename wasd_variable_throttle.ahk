@@ -4,7 +4,15 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 throttle := 0.5  ; Initialize throttle variable
+throttlePulsefrequency := 1 ;Hz
+steeringPulsefrequency := 5 ;Hz
+throttlePulsedelay := 1000 / throttlePulsefrequency ;ms
+steeringPulsedelay := 1000 / steeringPulsefrequency ;ms
 global throttle
+global steeringPulsedelay
+global Toggle
+
+Toggle := False
 
 #Persistent
 SetBatchLines, -1  ; Ensure high performance execution
@@ -23,18 +31,27 @@ return
 
 XButton1::
 	while GetKeyState("XButton1", "P") {
-		alternate("s", throttle, 20)
+		alternate("s", throttle, throttlePulsedelay)
 	}
 return
 
 XButton2::
 	while GetKeyState("XButton2", "P") {
-		alternate("w", throttle, 20)
+		alternate("w", throttle, throttlePulsedelay)
 	}
 return
 
-MButton::steering("MButton")
-
+#MaxThreadsperHotkey 2
+MButton::
+	Toggle:=!Toggle
+	updateIndicator()
+	While, Toggle {
+		steering()
+	}
+return
+; while GetKeyState("MButton", "P") {
+;
+	
 alternate(key, dutyCycle, cycleDelay) {
 	Send {%key% down}
 	Sleep, % (dutyCycle * cycleDelay)
@@ -42,14 +59,13 @@ alternate(key, dutyCycle, cycleDelay) {
 	Sleep, % ((1 - dutyCycle) * cycleDelay)
 }
 
-steering(activationKey) {
-    while GetKeyState(activationKey, "P") {
-		steeringPower := getSteeringPower()
-		steeringMagnitude := Abs(steeringPower)
-		key := (steeringPower < 0) ? "a" : "d"
-    	alternate(key, steeringMagnitude, 20)
-		updateIndicator()
-	}
+steering() {
+	global steeringPulsedelay
+	steeringPower := getSteeringPower()
+	steeringMagnitude := Abs(steeringPower)
+	key := (steeringPower < 0) ? "a" : "d"
+	alternate(key, steeringMagnitude, steeringPulsedelay)
+	updateIndicator()
 }
 
 getSteeringPower() {
@@ -72,8 +88,10 @@ showIndicator(){
 
 updateIndicator(){
     global throttle
+    global Toggle
 	global MyEdit
-	GuiControl,, MyEdit, % "Throttle: " . FloorDecimal(throttle, 2) . "`nSteering: " . FloorDecimal(getSteeringPower(), 2)
+	steeringText := Toggle ? "`nSteering: " . FloorDecimal(getSteeringPower(), 2) : ""
+	GuiControl,, MyEdit, % "Throttle: " . FloorDecimal(throttle, 2) . steeringText
 }
 
 floorDecimal(num, digits) {
